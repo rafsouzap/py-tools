@@ -17,7 +17,12 @@ file_counter = 0
 try:
     filename_without_ext = os.path.splitext(args.file)[0]
 
-    for chunk in pd.read_csv(args.file, encoding=args.encoding, chunksize=args.chunkSize):
+    full_data = pd.read_csv(args.file, encoding=args.encoding)
+    full_data = full_data.drop_duplicates(subset=[args.columnName])
+    
+    chunks = [full_data[i:i + args.chunkSize] for i in range(0, full_data.shape[0], args.chunkSize)]
+
+    for chunk in chunks:
         selected_column = chunk[args.columnName]
         selected_column = selected_column.apply(lambda x: f'{args.quotechar}{x}{args.quotechar}{args.endline}')
 
